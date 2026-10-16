@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personas</title>
+    <script>
+        async function getByUrl() {
+
+            // Obtener los valores de los inputs
+            //.trim() elimina los espacios en blanco que están al principio y al final de un texto
+            const url = document.getElementById('url').value.trim();
+            const nombre = document.getElementById('nombre').value.trim();
+
+            // Verificar que los dos campos estén completos
+            if (url === "" || nombre === "") {
+                alert("Tenés que completar la URL y el nombre.");
+                return;
+            }
+
+            try {
+                // Consultar la API
+                
+                const response = await fetch(url);
+
+                //fetch(url) hace una petición al servidor y guarda la respuesta en la variable response.
+                //Esa respuesta tiene una propiedad llamada .ok que puede valer:
+                // - true: la respuesta tiene un código HTTP entre 200 y 299. Por ejemplo, 200 OK.
+                // - false: la respuesta tiene otro código HTTP. Por ejemplo, 404 Not Found si el recurso no existe.
+                if (!response.ok) {
+                    alert("Error al consultar la API.");
+                    return;
+                }
+
+                //El await permite esperar el resultado de cada operación antes de continuar
+                const data = await response.json();
+
+                // Buscar una persona cuyo nombre coincida
+                const persona = data.find(
+                    p => p.nombre.toLowerCase() === nombre.toLowerCase()
+                );
+
+                // Si no existe, mostrar un aviso
+                if (!persona) {
+                    alert("No se encontró una persona con ese nombre.");
+                    document.getElementById('resultText').value = "";
+                    return;
+                }
+
+                // Mostrar la persona encontrada
+                document.getElementById('resultText').value =
+                    JSON.stringify(persona, null, 2);
+
+            } catch (error) {
+                alert("No se pudo conectar con la API. Revisá la URL.");
+            }
+        }
+
+        async function postByUrl() {
+            // Obtener los valores de los inputs
+            const url = document.getElementById('url').value.trim();
+            const nombre = document.getElementById('nombre').value.trim();
+
+            // Verificar que los dos campos estén completos
+            if (url === "" || nombre === "") {
+                alert("Tenés que completar la URL y el nombre.");
+                return;
+            }
+
+            try {
+                // Enviar la nueva persona a la API
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre: nombre
+                    })
+                });
+
+                if (!response.ok) {
+                    alert("Error al crear la persona.");
+                    return;
+                }
+
+                const data = await response.json();
+
+                // Mostrar la persona creada 
+                
+                document.getElementById('resultText').value =
+                    JSON.stringify(data, null, 2);
+
+                alert("Persona creada correctamente.");
+
+            } catch (error) {
+                alert("No se pudo conectar con la API. Revisá la URL.");
+            }
+        }
+        
+
+    </script>
+</head>
+<body>
+    <h1>Personas</h1>
+
+    <label for="url">URL de la API:</label>
+    <br>
+    <input
+        type="text"
+        id="url"
+        placeholder="http://localhost:3000/personas"
+    >
+
+    <br><br>
+
+    <label for="nombre">Nombre:</label>
+    <br>
+    <input
+        type="text"
+        id="nombre"
+        placeholder="Ingresá un nombre"
+    >
+
+    <br><br>
+
+    <button id="btnGet" onclick="getByUrl()">GET</button>
+    <button id="btnPost" onclick="postByUrl()">POST</button>
+
+    <div id="result">
+        <h3>Resultado:</h3>
+        <textarea id="resultText" rows="10" cols="40" readonly></textarea>
+    </div>
+    
+</body>
+</html>

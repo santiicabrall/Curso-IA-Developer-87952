@@ -34,6 +34,19 @@ class PersonaRepository:
     def existe(self, dni: str) -> bool:
         return dni in self._personas
 
+    def actualizar(self, dni: str, persona):
+        if not self.existe(dni):
+            return None
+        # El DNI identifica a la persona y no se modifica durante la actualización.
+        persona.dni = dni
+        self._personas[dni] = persona
+        return persona
+
+    def eliminar(self, dni: str) -> bool:
+        if not self.existe(dni):
+            return False
+        del self._personas[dni]
+        return True
 
  
     

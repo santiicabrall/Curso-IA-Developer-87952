@@ -50,6 +50,25 @@ def crear_persona():
         return jsonify({"error": mensaje}), codigo
     return jsonify(persona.to_dict()), 201
 
+@app.put("/personas/<dni>")
+def actualizar_persona(dni):
+    datos = request.get_json(silent=True)
+    if datos is None:
+        return jsonify({"error": "El cuerpo debe ser JSON válido."}), 400
+    try:
+        persona = servicio.actualizar_persona(dni, datos)
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 400
+    if persona is None:
+        return jsonify({"error": "No existe una persona con ese DNI."}), 404
+    return jsonify(persona.to_dict()), 200
+
+
+@app.delete("/personas/<dni>")
+def eliminar_persona(dni):
+    if not servicio.eliminar_persona(dni):
+        return jsonify({"error": "No existe una persona con ese DNI."}), 404
+    return "", 204
 
 
 if __name__ == "__main__":

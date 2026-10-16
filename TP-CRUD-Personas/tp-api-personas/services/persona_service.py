@@ -20,6 +20,16 @@ class PersonaService:
         persona = Persona(datos["dni"], datos["nombre"])
         return self.repositorio.crear(persona)
 
+    def actualizar_persona(self, dni: str, datos: dict):
+        if not isinstance(datos, dict):
+            raise ValueError("El cuerpo de la solicitud debe ser un objeto JSON.")
+        if "nombre" not in datos:
+            raise ValueError("Se requiere el campo 'nombre'.")
+        if not self.repositorio.existe(dni):
+            return None
+        persona = Persona(dni, datos["nombre"])
+        return self.repositorio.actualizar(dni, persona)
+
 
     def eliminar_persona(self, dni: str) -> bool:
         return self.repositorio.eliminar(dni)
